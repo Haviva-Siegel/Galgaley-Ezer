@@ -4,59 +4,44 @@ const imageService = require("../service/image.service");
 const multer = require("multer");
 const User = require("../models/users.model");
 const cloudinary = require("../config/imageUpload");
-const path = require("path");
 
 const storage = multer.diskStorage({});
 
 const fileFilter = (req, file, cb) => {
-  console.log("path", file);
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
   } else {
-    cb("invalid image file", false);
+    cb("invalid image file!", false);
   }
 };
-
-// const fileFilter = (req, file, cb) => {
-//   if (file.mimetype.startsWith("image")) {
-//     console.log("path", path);
-//     cb(null, true);
-//   } else {
-//     cb("invalid image file", false);
-//   }
-// };
-
-const upload = multer({ storage, fileFilter });
+const uploads = multer({ storage, fileFilter });
 
 // ---------------------------------------------UPLOAD USER AVATAR--------------------------------------------------
-router.post("/", upload.single("profile"), async (req, res) => {
-  console.log("user", req.user);
-  console.log("file", path);
+router.post("/", uploads.single("profile"), async (req, res) => {
+  console.log("user", req.body);
+  console.log("file", req.file);
 
-  const result = await cloudinary.uploader.upload(req.file.path, {
-    public_id: `${user._id}_profile`,
-    width: 500,
-    height: 500,
-    crop: "fill",
-  });
-  console.log("result", result);
-  // try {
-  //   const result = await cloudinary.uploader.upload(req.file.path, {
-  //     public_id: `${user._id}_profile`,
-  //     width: 500,
-  //     height: 500,
-  //     crop: "fill",
-  //   });
-  //   await User.findByIdAndUpdate(user._id, { avatar: result.url });
-  //   // await imageService.uploadProfileImage(user._id, { avatar: result.url });
-  //   res.status(201).json({ success: true, message: "profile updated" });
-  // } catch (err) {
-  //   console.log("err uploading profile", err.massage);
-  //   res.status(500).json({
-  //     success: false,
-  //     message: "sever err",
-  //   });
-  // }
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      public_id: `${user._id}_profile`,
+      width: 500,
+      height: 500,
+      crop: "fill",
+    });
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { avatar: result.url },
+      { new: true }
+    );
+    res
+      .status(201)
+      .json({ success: true, message: "Your profile has updated!" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "server error, try after some time" });
+    console.log("Error while uploading profile image", error.message);
+  }
 });
 
 module.exports = router;

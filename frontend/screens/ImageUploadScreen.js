@@ -12,6 +12,8 @@ const ImageUploadScreen = () => {
     let response = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
 
     if (!response.cancelled) {
@@ -20,21 +22,20 @@ const ImageUploadScreen = () => {
   };
 
   const uploadProfileImage = async () => {
-    const imageUri = profileImage.replace("file:/data", "file:///data");
-    const imageType = profileImage.split(".")[1];
+    const imageUri = profileImage.replace("file:///data", "file:/data");
     const formData = new FormData();
     formData.append("profile", {
       name: new Date() + "_profile",
-      uri: imageUri,
+      uri: profileImage,
       type: "image/jpg",
     });
-    // formData.append("profile", imageUri);
-    console.log(formData);
+    console.log(imageUri, profileImage);
     try {
       const res = await httpURL.post("/upload", formData, {
         headers: {
           Accept: "application/json",
-          "Content-Type": `multipart/form-data;boundary=${formData}`,
+          "Content-Type":
+            "multipart/form-data'; boundary=someArbitraryUniqueString",
         },
       });
       console.log("res", res);

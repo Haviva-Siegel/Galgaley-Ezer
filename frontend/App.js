@@ -43,7 +43,6 @@ const App = () => {
           setUser(() => res.data.user);
         }
       } catch (error) {
-        console.log("err", error);
         setUser(() => null);
       }
     };

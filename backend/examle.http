@@ -41,6 +41,5 @@ Content-Type: application/json
 }
 
 ###
-POST {{local}}upload/uploadProfile
-Content-Disposition: form-data; name="profile"; filename="test.png"
-Content-Type: image/png
+POST {{local}}upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryHl8DZV3dBSj0qBVe
